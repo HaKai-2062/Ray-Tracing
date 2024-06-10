@@ -4,6 +4,7 @@ Software Ray tracing based on [Ray Tracing in One Weekend series](https://raytra
 ## Libraries
 - [GLFW](https://github.com/glfw/glfw)
 - [Glad (gl 3.3, OpenGL, Core profile)](https://glad.dav1d.de/)
+- [glm](https://github.com/g-truc/glm)
 - [imgui (docking branch)](https://github.com/ocornut/imgui/tree/docking)
 
 ## Tools Used
