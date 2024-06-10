@@ -5,6 +5,8 @@
 Renderer::Renderer(int width, int height)
 	: m_Width(width), m_Height(height)
 {
+	m_ColorData.reserve(m_Width * m_Height);
+
 	std::cout << "Renderer: Initialized" << std::endl;
 }
 
@@ -28,14 +30,13 @@ void Renderer::UpdateDimensions(int width, int height)
 void Renderer::SetPixelData()
 {
 	m_ColorData.clear();
-	m_ColorData.reserve(m_Width * m_Height);
 
 	for (int i = 0; i < m_Height; i++)
 	{
 		for (int j = 0; j < m_Width; j++)
 		{
-			float r = float(i) / (m_Height - 1);
-			float g = float(j) / (m_Width - 1);
+			float r = float(j) / (m_Width - 1);
+			float g = float(i) / (m_Height - 1);
 
 			m_ColorData.emplace_back(r, g, 0.0f, 1.0f);
 		}
