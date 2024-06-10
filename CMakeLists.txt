@@ -16,34 +16,34 @@ else()
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 endif()
 
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) #link time optimization
+#set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) #link time optimization
 
 project ("Ray-Tracing")
 
+
 include(FetchContent)
 
-function(CloneRepository repositoryURL branchName projectName sourceDir)
+function(CloneRepository repositoryURL branchName projectName sourceDir customCMakePath)
 	message("Starting to clone ${projectName} into ${sourceDir}")
+		
 	FetchContent_Declare(
-	  "${projectName}"
-	  GIT_REPOSITORY "${repositoryURL}"
-	  SOURCE_DIR "${sourceDir}"
-	  GIT_TAG "origin/${branchName}"
-	  CONFIGURE_COMMAND ""
-	  BUILD_COMMAND ""
-	  INSTALL_COMMAND ""
+		"${projectName}"
+		GIT_REPOSITORY "${repositoryURL}"
+		SOURCE_DIR "${sourceDir}"
+		GIT_TAG "origin/${branchName}"
+		SOURCE_SUBDIR  "${customCMakePath}"
+		CONFIGURE_COMMAND ""
+		BUILD_COMMAND ""
+		INSTALL_COMMAND ""
 	)
 
-	# This is a hack to make GLFW build on 2nd try. The vendor/projectName and out dir must be deleted beforehand to clone.
-	# This is because of conflict of CMakelists.txt of GLFW/src with FetchContent_MakeAvailable
-	if (NOT EXISTS ${sourceDir})
-		FetchContent_MakeAvailable(${projectName})
-	endif()
+	FetchContent_MakeAvailable(${projectName})
 
 endfunction(CloneRepository)
 
-CloneRepository("https://github.com/glfw/glfw.git" "master" "GLFW" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW")
-CloneRepository("https://github.com/ocornut/imgui.git" "docking" "imgui-docking" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui-docking")
+CloneRepository("https://github.com/glfw/glfw.git" "master" "GLFW" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW" "")
+CloneRepository("https://github.com/g-truc/glm.git" "master" "glm" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/glm" "")
+CloneRepository("https://github.com/ocornut/imgui.git" "docking" "imgui-docking" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui-docking" "../CMake/imgui-docking") 
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -52,8 +52,11 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(vendor/GLFW)
+add_subdirectory(vendor/glm)
 add_subdirectory(vendor/CMake/Glad)
-add_subdirectory(vendor/CMake/imgui-docking)
+
+# Dont specify dirs with custom CMakefiles.txt that arent in Git repo?
+#add_subdirectory(vendor/CMake/imgui-docking)
 
 # Add source to this project's executable.
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS 
@@ -87,9 +90,11 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC
 "${CMAKE_CURRENT_SOURCE_DIR}/src"
 "${CMAKE_CURRENT_SOURCE_DIR}/vendor/Glad/include"
 "${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW/include"
+"${CMAKE_CURRENT_SOURCE_DIR}/vendor/glm/"
 "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui-docking")
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE 
 glfw
 glad
+glm
 imgui)
