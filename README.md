@@ -11,4 +11,7 @@ Software Ray tracing based on [Ray Tracing in One Weekend series](https://raytra
 - [Visual Studio](https://visualstudio.microsoft.com/)
 
 ## Building the project
-Delete 'out' folder and 'GLFW', 'imgui-docking' from 'vendor' if they exist. Ctrl+S to run the CMakelists.txt file located in the project folder. This will clone the repositories and try to build. In case of GLFW errors, simply re run the CMakelists.txt file.
+- Open the project directory inside Visual Studio.
+- Open the CMakelists.txt file located in the project folder and Ctrl+S. This will clone and build the dependencies.
+- In case of CMake related issues, delete 'out' folder and try rebuilding.
+
