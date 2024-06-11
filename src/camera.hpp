@@ -1,10 +1,12 @@
+#pragma once
+
 #include <glm/glm.hpp>
 
 class Camera
 {
 public:
 
-	static Camera& CreateInstance(glm::vec3& cameraCenter, float focalLength = 1.0f, float viewportHeight = 2.0f, float aspectRatio = 16.0f / 9, int imageWidth = 400);
+	static Camera& CreateInstance(glm::vec3& cameraCenter, float focalLength = 1.0f, float viewportHeight = 2.0f);
 	
 	const glm::vec3& GetPixelTopLeft() const { return m_PixelTopLeft; }
 	const glm::vec3& GetPixelDeltaU() const { return m_PixelDeltaU; }
@@ -17,7 +19,7 @@ private:
 	Camera(const Camera&&) = delete;
 	void operator=(const Camera&) = delete;
 
-	Camera(glm::vec3& cameraCenter, float focalLength, float viewportHeight, float aspectRatio, int imageWidth);
+	Camera(glm::vec3& cameraCenter, float focalLength, float viewportHeight);
 
 private:
 	float m_AspectRatio, m_FocalLength, m_ViewportHeight, m_ViewportWidth;

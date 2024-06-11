@@ -1,8 +1,9 @@
 #include <iostream>
 
-#include <renderer.hpp>
-#include <camera.hpp>
-#include <ray.hpp>
+#include "renderer.hpp"
+#include "camera.hpp"
+#include "ray.hpp"
+#include "sphere.hpp"
 
 Renderer::Renderer(int width, int height)
 	: m_Width(width), m_Height(height)
@@ -35,6 +36,7 @@ void Renderer::UpdateDimensions(int width, int height)
 void Renderer::SetPixelData()
 {
 	m_ColorData.clear();
+	Sphere sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f);
 
 	for (int j = 0; j < m_Height; j++)
 	{
@@ -44,7 +46,19 @@ void Renderer::SetPixelData()
 			glm::vec3 rayDir = pixelCenter - m_Camera->GetCameraCenter();
 			Ray ray(m_Camera->GetCameraCenter(), rayDir);
 			
-			glm::vec3 rayColor = ray.GetRayColor();
+			glm::vec3 rayColor;
+			HitRecord hitRecord;
+			bool isHit = sphere.Hit(ray, 0.0f, 1.0f, hitRecord);
+			if (isHit)
+			{
+				glm::vec3 normal = glm::normalize(ray.At(hitRecord.x) - glm::vec3(0.0f, 0.0f, -1.0f));
+				rayColor = 0.5f * (1.0f + normal);
+			}
+			else
+			{
+				rayColor = ray.GetRayColor();
+			}
+			
 			m_ColorData.emplace_back(rayColor);
 		}
 	}

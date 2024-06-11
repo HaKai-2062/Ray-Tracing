@@ -1,3 +1,5 @@
+#pragma once
+
 struct GLFWwindow;
 
 using ImGuiID = unsigned int;

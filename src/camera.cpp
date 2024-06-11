@@ -2,11 +2,13 @@
 
 #include "camera.hpp"
 
-Camera::Camera(glm::vec3& cameraCenter, float focalLength, float viewportHeight,  float aspectRatio, int imageWidth)
-	: m_CameraCenter(cameraCenter), m_FocalLength(focalLength), m_ViewportHeight(viewportHeight), m_AspectRatio(aspectRatio), m_ImageWidth(imageWidth)
+Camera::Camera(glm::vec3& cameraCenter, float focalLength, float viewportHeight)
+	: m_CameraCenter(cameraCenter), m_FocalLength(focalLength), m_ViewportHeight(viewportHeight)
 {
-	m_ImageHeight = int(m_ImageWidth / m_AspectRatio);
-	m_ImageHeight = m_ImageHeight < 1 ? 1 : m_ImageHeight;
+	m_ImageWidth = 1280;
+	m_ImageHeight = 720;
+	m_AspectRatio = float(1280) / 720;
+
 	m_ViewportWidth = m_ViewportHeight * (float(m_ImageWidth) / m_ImageHeight);
 	
 	m_ViewportU = glm::vec3(m_ViewportWidth, 0.0f, 0.0f);
@@ -21,9 +23,9 @@ Camera::Camera(glm::vec3& cameraCenter, float focalLength, float viewportHeight,
 	std::cout << "Camera: Initialized" << std::endl;
 }
 
-Camera& Camera::CreateInstance(glm::vec3& cameraCenter, float focalLength, float viewportHeight,  float aspectRatio, int imageWidth)
+Camera& Camera::CreateInstance(glm::vec3& cameraCenter, float focalLength, float viewportHeight)
 {
-	static Camera camera(cameraCenter, focalLength, viewportHeight, aspectRatio, imageWidth);
+	static Camera camera(cameraCenter, focalLength, viewportHeight);
 	return camera;
 }
 
