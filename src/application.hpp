@@ -23,6 +23,7 @@ private:
 private:
 	GLFWwindow* m_Window = nullptr;
 	Renderer* m_Renderer = nullptr;
-	int m_Width, m_Height = 0;
+
+	int m_Width = 0, m_Height = 0;
 	unsigned int m_TextureID = 0;
 };

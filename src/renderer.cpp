@@ -1,11 +1,16 @@
 #include <iostream>
 
 #include <renderer.hpp>
+#include <camera.hpp>
+#include <ray.hpp>
 
 Renderer::Renderer(int width, int height)
 	: m_Width(width), m_Height(height)
 {
 	m_ColorData.reserve(m_Width * m_Height);
+
+	glm::vec3 cameraCenter({ 0.0f, 0.0f, 0.0f });
+	m_Camera = &Camera::CreateInstance(cameraCenter);
 
 	std::cout << "Renderer: Initialized" << std::endl;
 }
@@ -31,19 +36,21 @@ void Renderer::SetPixelData()
 {
 	m_ColorData.clear();
 
-	for (int i = 0; i < m_Height; i++)
+	for (int j = 0; j < m_Height; j++)
 	{
-		for (int j = 0; j < m_Width; j++)
+		for (int i = 0; i < m_Width; i++)
 		{
-			float r = float(j) / (m_Width - 1);
-			float g = float(i) / (m_Height - 1);
-
-			m_ColorData.emplace_back(r, g, 0.0f, 1.0f);
+			glm::vec3 pixelCenter = m_Camera->GetPixelTopLeft() + (float(i) * m_Camera->GetPixelDeltaU()) + (float(j) * m_Camera->GetPixelDeltaV());
+			glm::vec3 rayDir = pixelCenter - m_Camera->GetCameraCenter();
+			Ray ray(m_Camera->GetCameraCenter(), rayDir);
+			
+			glm::vec3 rayColor = ray.GetRayColor();
+			m_ColorData.emplace_back(rayColor);
 		}
 	}
 }
 
-const std::vector<Color>& Renderer::ReadPixelData() const
+const std::vector<glm::vec3>& Renderer::ReadPixelData() const
 {
 	return m_ColorData;
 }

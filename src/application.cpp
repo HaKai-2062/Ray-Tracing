@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include "application.hpp"
 #include "imgui_handler.hpp"
@@ -33,9 +34,9 @@ Application::Application(std::string& title, int width, int height)
 		return;
 	}
 
-	m_Renderer = &Renderer::CreateInstance(m_Width, m_Height);
 
 	ImGuiHandler::Init(glslVersion, m_Window);
+	m_Renderer = &Renderer::CreateInstance(m_Width, m_Height);
 }
 
 Application::~Application()
@@ -90,7 +91,7 @@ void Application::CreateTexture(unsigned int& textureID)
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, m_Renderer->ReadPixelData().data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, m_Renderer->ReadPixelData().data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
@@ -100,7 +101,7 @@ void Application::CreateTexture(unsigned int& textureID)
 void Application::UpdateTexture(unsigned int& textureID)
 {
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, m_Renderer->ReadPixelData().data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, m_Renderer->ReadPixelData().data());
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

@@ -1,9 +1,8 @@
 #include <vector>
 
-struct Color
-{
-	float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
-};
+#include <glm/glm.hpp>
+
+class Camera;
 
 class Renderer
 {
@@ -12,7 +11,7 @@ public:
 	static Renderer& CreateInstance(int width, int height);
 	void UpdateDimensions(int width, int height);
 	void SetPixelData();
-	const std::vector<Color>& ReadPixelData() const;
+	const std::vector<glm::vec3>& ReadPixelData() const;
 
 public:
 	int m_Width = 0 , m_Height = 0;
@@ -26,5 +25,6 @@ private:
 	Renderer(int width, int height);
 
 private:
-	std::vector<Color> m_ColorData;
+	std::vector<glm::vec3> m_ColorData;
+	Camera* m_Camera = nullptr;
 };
