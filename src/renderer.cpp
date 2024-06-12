@@ -4,6 +4,7 @@
 #include "camera.hpp"
 #include "ray.hpp"
 #include "sphere.hpp"
+#include "hittable_list.hpp"
 
 Renderer::Renderer(int width, int height)
 	: m_Width(width), m_Height(height)
@@ -36,7 +37,11 @@ void Renderer::UpdateDimensions(int width, int height)
 void Renderer::SetPixelData()
 {
 	//m_ColorData.clear();
-	Sphere sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f);
+	
+	// Dont make it every frame ?
+	HittableList world;
+	world.Add(std::make_shared<Sphere>(glm::vec3(0.0f, 0.0f, -1.0f), 0.5));
+	world.Add(std::make_shared<Sphere>(glm::vec3(0.0f, -100.5f, -1), 100));
 
 	for (int j = 0; j < m_Height; j++)
 	{
@@ -48,11 +53,10 @@ void Renderer::SetPixelData()
 			
 			glm::vec3 rayColor;
 			HitRecord hitRecord;
-			bool isHit = sphere.Hit(ray, 0.0f, 1.0f, hitRecord);
+			bool isHit = world.Hit(ray, 0.0f, std::numeric_limits<float>::infinity(), hitRecord);
 			if (isHit)
 			{
-				glm::vec3 normal = glm::normalize(ray.At(hitRecord.x) - glm::vec3(0.0f, 0.0f, -1.0f));
-				rayColor = 0.5f * (1.0f + normal);
+				rayColor = 0.5f * (1.0f + hitRecord.normal);
 			}
 			else
 			{
