@@ -7,7 +7,8 @@
 
 #include "application.hpp"
 #include "imgui_handler.hpp"
-#include "renderer.hpp"
+#include "camera.hpp"
+#include "sphere.hpp"
 
 Application::Application(std::string& title, int width, int height)
 	: m_Width(width), m_Height(height)
@@ -34,9 +35,13 @@ Application::Application(std::string& title, int width, int height)
 		return;
 	}
 
-
 	ImGuiHandler::Init(glslVersion, m_Window);
-	m_Renderer = &Renderer::CreateInstance(m_Width, m_Height);
+
+	glm::vec3 cameraCenter(0.0f, 0.0f, 0.0f);
+	m_Camera = &Camera::CreateInstance(m_Width, m_Height, cameraCenter);
+
+	m_World.Add(std::make_shared<Sphere>(glm::vec3(0.0f, 0.0f, -1.0f), 0.5));
+	m_World.Add(std::make_shared<Sphere>(glm::vec3(0.0f, -100.5f, -1), 100));
 }
 
 Application::~Application()
@@ -75,7 +80,7 @@ void Application::MainLoop()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		m_Renderer->SetPixelData();
+		m_Camera->Render(m_World);
 		UpdateTexture(textureID);
 		ImGuiHandler::DrawPixels(dockSpaceID, textureID);
 
@@ -91,7 +96,7 @@ void Application::CreateTexture(unsigned int& textureID)
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, m_Renderer->ReadPixelData().data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, m_Camera->ReadImageData().data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
@@ -101,7 +106,7 @@ void Application::CreateTexture(unsigned int& textureID)
 void Application::UpdateTexture(unsigned int& textureID)
 {
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, m_Renderer->ReadPixelData().data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, m_Camera->ReadImageData().data());
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

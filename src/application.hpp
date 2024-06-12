@@ -1,7 +1,9 @@
 #pragma once
 
+#include "hittable_list.hpp"
+
 struct GLFWwindow;
-class Renderer;
+class Camera;
 
 class Application
 {
@@ -24,8 +26,10 @@ private:
 
 private:
 	GLFWwindow* m_Window = nullptr;
-	Renderer* m_Renderer = nullptr;
+	Camera* m_Camera = nullptr;
 
 	int m_Width = 0, m_Height = 0;
 	unsigned int m_TextureID = 0;
+
+	HittableList m_World;
 };

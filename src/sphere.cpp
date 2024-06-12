@@ -1,6 +1,6 @@
 #include "sphere.hpp"
 
-bool Sphere::Hit(const Ray& ray, Interval& rayInterval, HitRecord& hitrecord) const
+bool Sphere::Hit(const Ray& ray, Interval rayInterval, HitRecord& hitrecord) const
 {
 	glm::vec3 oc = m_Origin - ray.GetOrigin();
 	float a = glm::dot(ray.GetDir(), ray.GetDir());

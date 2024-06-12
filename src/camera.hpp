@@ -1,17 +1,16 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "hittable.hpp"
+
+class Ray;
 
 class Camera
 {
 public:
-
-	static Camera& CreateInstance(glm::vec3& cameraCenter, float focalLength = 1.0f, float viewportHeight = 2.0f);
-	
-	const glm::vec3& GetPixelTopLeft() const { return m_PixelTopLeft; }
-	const glm::vec3& GetPixelDeltaU() const { return m_PixelDeltaU; }
-	const glm::vec3& GetPixelDeltaV() const { return m_PixelDeltaV; }
-	const glm::vec3& GetCameraCenter() const { return m_CameraCenter; }
+	static Camera& CreateInstance(int width, int height, glm::vec3& cameraCenter, float focalLength = 1.0f, float viewportHeight = 2.0f);
+	void Render(const Hittable& world);
+	const std::vector<glm::vec3>& ReadImageData() const { return m_ImageData; }
 
 private:
 	~Camera();
@@ -19,13 +18,15 @@ private:
 	Camera(const Camera&&) = delete;
 	void operator=(const Camera&) = delete;
 
-	Camera(glm::vec3& cameraCenter, float focalLength, float viewportHeight);
+	Camera(int width, int height, glm::vec3& cameraCenter, float focalLength, float viewportHeight);
+	glm::vec3& GetRayColor(const Ray& ray, const Hittable& hittable) const;
 
 private:
 	float m_AspectRatio, m_FocalLength, m_ViewportHeight, m_ViewportWidth;
 	int m_ImageWidth, m_ImageHeight;
-	glm::vec3 m_CameraCenter;
+	std::vector<glm::vec3> m_ImageData;
 
+	glm::vec3 m_CameraCenter;
 	glm::vec3 m_ViewportU;
 	glm::vec3 m_ViewportV;
 	glm::vec3 m_PixelDeltaU;
