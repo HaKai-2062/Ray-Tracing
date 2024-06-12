@@ -14,7 +14,7 @@ public:
 	void Clear() { m_Objects.clear(); }
 	void Add(std::shared_ptr<Hittable> object) { m_Objects.emplace_back(object); }
 	
-	bool Hit(const Ray& ray, float rayXmin, float rayXMax, HitRecord& hitRecord) const override;
+	bool Hit(const Ray& ray, Interval& rayInterval, HitRecord& hitRecord) const override;
 
 public:
 	std::vector<std::shared_ptr<Hittable>> m_Objects;

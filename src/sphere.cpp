@@ -1,6 +1,6 @@
 #include "sphere.hpp"
 
-bool Sphere::Hit(const Ray& ray, float rayXMin, float rayXMax, HitRecord& hitrecord) const
+bool Sphere::Hit(const Ray& ray, Interval& rayInterval, HitRecord& hitrecord) const
 {
 	glm::vec3 oc = m_Origin - ray.GetOrigin();
 	float a = glm::dot(ray.GetDir(), ray.GetDir());
@@ -15,10 +15,10 @@ bool Sphere::Hit(const Ray& ray, float rayXMin, float rayXMax, HitRecord& hitrec
 
 	float sqrtDeterminant = glm::sqrt(discriminant);
 	float root = (h - sqrtDeterminant) / a;
-	if (root <= rayXMin || root >= rayXMax)
+	if (!rayInterval.Surrounds(root))
 	{
 		root = (h + sqrtDeterminant) / a;
-		if (root <= rayXMin || root >= rayXMax)
+		if (!rayInterval.Surrounds(root))
 		{
 			return false;
 		}

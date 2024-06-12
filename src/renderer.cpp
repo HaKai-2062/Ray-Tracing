@@ -39,6 +39,7 @@ void Renderer::SetPixelData()
 	//m_ColorData.clear();
 	
 	// Dont make it every frame ?
+	Interval rayInterval(0.0f, std::numeric_limits<float>::max());
 	HittableList world;
 	world.Add(std::make_shared<Sphere>(glm::vec3(0.0f, 0.0f, -1.0f), 0.5));
 	world.Add(std::make_shared<Sphere>(glm::vec3(0.0f, -100.5f, -1), 100));
@@ -53,7 +54,7 @@ void Renderer::SetPixelData()
 			
 			glm::vec3 rayColor;
 			HitRecord hitRecord;
-			bool isHit = world.Hit(ray, 0.0f, std::numeric_limits<float>::infinity(), hitRecord);
+			bool isHit = world.Hit(ray, rayInterval, hitRecord);
 			if (isHit)
 			{
 				rayColor = 0.5f * (1.0f + hitRecord.normal);

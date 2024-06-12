@@ -10,6 +10,7 @@
 
 // Custom Headers
 #include "ray.hpp"
+#include "interval.hpp"
 
 // Utility Functions
 

@@ -8,7 +8,7 @@ public:
 	Sphere(const glm::vec3& origin, float radius)
 		: m_Origin(origin), m_Radius(radius) {}
 
-	bool Hit(const Ray& ray, float rayXMin, float rayXMax, HitRecord& hitrecord) const override;
+	bool Hit(const Ray& ray, Interval& rayInterval, HitRecord& hitrecord) const override;
 
 private:
 	glm::vec3 m_Origin;
