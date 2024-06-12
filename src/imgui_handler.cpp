@@ -76,7 +76,7 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID)
     ImGui::End();
 }
 
-void ImGuiHandler::DrawPixels(ImGuiID& dockSpaceID, unsigned int* textureID)
+void ImGuiHandler::DrawPixels(ImGuiID& dockSpaceID, unsigned int textureID)
 {
     ImGui::SetNextWindowDockID(dockSpaceID, ImGuiCond_FirstUseEver);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
@@ -87,8 +87,8 @@ void ImGuiHandler::DrawPixels(ImGuiID& dockSpaceID, unsigned int* textureID)
     ImVec2 getRegion = ImGui::GetContentRegionAvail();
 
     // To invert the image
-    //ImGui::Image((void*)(unsigned int)(*textureID), getRegion, ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::Image((void*)(unsigned int)(*textureID), getRegion);
+    //ImGui::Image((void*)(unsigned int)(textureID), getRegion, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void*)(unsigned int)(textureID), getRegion);
     ImGui::PopStyleVar(3);
 
     ImGui::End();

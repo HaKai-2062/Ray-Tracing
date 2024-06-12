@@ -35,7 +35,7 @@ void Renderer::UpdateDimensions(int width, int height)
 
 void Renderer::SetPixelData()
 {
-	m_ColorData.clear();
+	//m_ColorData.clear();
 	Sphere sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f);
 
 	for (int j = 0; j < m_Height; j++)
@@ -59,7 +59,7 @@ void Renderer::SetPixelData()
 				rayColor = ray.GetRayColor();
 			}
 			
-			m_ColorData.emplace_back(rayColor);
+			m_ColorData[i + j * m_Width] = rayColor;
 		}
 	}
 }

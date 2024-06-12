@@ -77,7 +77,7 @@ void Application::MainLoop()
 
 		m_Renderer->SetPixelData();
 		UpdateTexture(textureID);
-		ImGuiHandler::DrawPixels(dockSpaceID, &textureID);
+		ImGuiHandler::DrawPixels(dockSpaceID, textureID);
 
 		ImGuiHandler::EndFrame();
 

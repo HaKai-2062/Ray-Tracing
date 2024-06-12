@@ -26,7 +26,9 @@ bool Sphere::Hit(const Ray& ray, float rayXMin, float rayXMax, HitRecord& hitrec
 
 	hitrecord.x = root;
 	hitrecord.point = ray.At(root);
-	hitrecord.normal = (hitrecord.point - m_Origin) / m_Radius;
+	glm::vec3 outNormal = (hitrecord.point - m_Origin) / m_Radius;
+	hitrecord.frontFace = dot(ray.GetDir(), outNormal) < 0;
+	hitrecord.normal = hitrecord.frontFace ? outNormal : -outNormal;
 
 	return true;
 }

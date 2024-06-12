@@ -8,6 +8,7 @@ public:
 	glm::vec3 point;
 	glm::vec3 normal;
 	float x;
+	bool frontFace;
 };
 
 class Hittable
