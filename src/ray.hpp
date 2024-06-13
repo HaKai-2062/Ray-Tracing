@@ -12,8 +12,6 @@ public:
 	const glm::vec3& GetDir() const { return m_RayDir; }
 	glm::vec3 At(float x) const { return m_RayOrigin + x * m_RayDir; }
 
-	glm::vec3 GetRayColor();
-
 private:
 	Ray() = delete;
 	Ray(const Ray&) = delete;

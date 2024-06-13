@@ -12,6 +12,7 @@ public:
 	float Size() const { return m_Max - m_Min; }
 	bool Contains(float x) const { return x >= m_Min && x <= m_Max; }
 	bool Surrounds(float x) const { return x > m_Min && x < m_Max; }
+	float Clamp(float x) const { return x < m_Min ? m_Min : x > m_Max ? m_Max : x; }
 	
 public:
 	static const Interval s_Empty, s_Universe;

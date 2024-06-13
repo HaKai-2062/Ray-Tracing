@@ -5,10 +5,12 @@
 #include "sphere.hpp"
 #include "hittable_list.hpp"
 
+static glm::vec3 rayColor(const Ray& ray, int maxBounces, const Hittable& world);
+
 Camera::Camera(int width, int height, glm::vec3& cameraCenter, float focalLength, float viewportHeight)
 	: m_ImageWidth(width), m_ImageHeight(height), m_CameraCenter(cameraCenter), m_FocalLength(focalLength), m_ViewportHeight(viewportHeight)
 {
-	m_AspectRatio = m_ImageWidth / m_ImageHeight;
+	m_AspectRatio = float(m_ImageWidth) / m_ImageHeight;
 
 	m_ViewportWidth = m_ViewportHeight * (float(m_ImageWidth) / m_ImageHeight);
 	
@@ -23,6 +25,8 @@ Camera::Camera(int width, int height, glm::vec3& cameraCenter, float focalLength
 
 	m_ImageData.reserve(m_ImageWidth * m_ImageHeight);
 
+	m_MaxBounces = 10;
+	m_MaxSamples = 10;
 
 	std::cout << "Camera: Initialized" << std::endl;
 }
@@ -40,27 +44,35 @@ Camera::~Camera()
 
 void Camera::Render(const Hittable& world) 
 {
-	for (int j = 0; j < m_ImageHeight; j++)
+	for (int y = 0; y < m_ImageHeight; y++)
 	{
-		for (int i = 0; i < m_ImageWidth; i++)
+		for (int x = 0; x < m_ImageWidth; x++)
 		{
-			glm::vec3 pixelCenter = m_PixelTopLeft + (float(i) * m_PixelDeltaU) + (float(j) * m_PixelDeltaV);
+			glm::vec3 pixelCenter = m_PixelTopLeft + (float(x) * m_PixelDeltaU) + (float(y) * m_PixelDeltaV);
 			glm::vec3 rayDir = pixelCenter - m_CameraCenter;
 			Ray ray(m_CameraCenter, rayDir);
 			
-			glm::vec3 rayColor;
-			HitRecord hitRecord;
-			bool isHit = world.Hit(ray, Interval(0.0f, std::numeric_limits<float>::max()), hitRecord);
-			if (isHit)
-			{
-				rayColor = 0.5f * (1.0f + hitRecord.normal);
-			}
-			else
-			{
-				rayColor = ray.GetRayColor();
-			}
-			
-			m_ImageData[i + j * m_ImageWidth] = rayColor;
+			glm::vec3 color = rayColor(ray, m_MaxBounces, world);
+
+			m_ImageData[x + y * m_ImageWidth] = color; 
 		}
 	}
+}
+
+static glm::vec3 rayColor(const Ray& ray, int maxBounces, const Hittable& world)
+{
+	if (maxBounces <= 0)
+		return glm::vec3(0.0f, 0.0f, 0.0f);
+
+	HitRecord hitRecord;
+	bool isHit = world.Hit(ray, Interval(0.001f, std::numeric_limits<float>::infinity()), hitRecord);
+	if (isHit)
+	{
+		glm::vec3 direction = randOnHemisphere(hitRecord.normal);
+		return 0.5f * rayColor(Ray(hitRecord.point, direction), maxBounces-1, world);
+	}
+	
+	glm::vec3 normalDir = glm::normalize(ray.GetDir());
+	float a = 0.5f * (normalDir.y + 1.0f);
+	return (1.0f - a) * glm::vec3(1.0f, 1.0f, 1.0f) + a * glm::vec3(0.5f, 0.7f, 1.0f);
 }
