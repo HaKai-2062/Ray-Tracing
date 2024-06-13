@@ -3,6 +3,6 @@
 
 int main()
 {
-	Application& application = Application::CreateInstance("RayTracing", 1280, 720);
+	Application& application = Application::GetInstance();
 	application.MainLoop();
 }

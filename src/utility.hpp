@@ -7,11 +7,6 @@
 #include <random>
 
 #include <glm/glm.hpp>
-#include <glm/ext/scalar_constants.hpp>
-
-// Custom Headers
-#include "ray.hpp"
-#include "interval.hpp"
 
 // Utility Functions
 
@@ -20,27 +15,13 @@ inline float degreesToRadians(float degrees)
     return degrees * glm::pi<float>() / 180.0f;
 }
 
-inline float randomFloat(float min = 0.0f, float max = 1.0f)
+inline uint32_t ConvertToRGBA(const glm::vec4& color)
 {
-    std::uniform_real_distribution distribution(min, max);
-    static std::mt19937 generator;
-    return distribution(generator);
-}
+    uint8_t r = static_cast<uint8_t>(color.r * 255.0f);
+    uint8_t g = static_cast<uint8_t>(color.g * 255.0f);
+    uint8_t b = static_cast<uint8_t>(color.b * 255.0f);
+    uint8_t a = static_cast<uint8_t>(color.a * 255.0f);
 
-inline glm::vec3 randomVector(float min = -1.0f, float max = 1.0f)
-{
-    return glm::vec3(randomFloat(), randomFloat(), randomFloat());
-}
-
-inline glm::vec3 randOnHemisphere(const glm::vec3& normal)
-{
-    while (true)
-    {
-        glm::vec3 p =  randomVector();
-        if (glm::dot(p, p) < 1)
-        {
-            glm::vec3 unitVector = glm::normalize(p);
-            return glm::dot(unitVector, normal) < 0 ? unitVector : -unitVector;
-        }
-    }
+    uint32_t result = (a << 24) | (b << 16) | (g << 8) | r;
+    return result;
 }
