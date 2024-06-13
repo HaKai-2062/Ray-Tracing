@@ -1,5 +1,7 @@
 # Ray-Tracing
-Software Ray tracing based on [Ray Tracing in One Weekend series](https://raytracing.github.io/)
+Software Ray tracing based on [Ray Tracing by The Cherno](https://www.youtube.com/playlist?list=PLlrATfBNZ98edc5GshdBtREv5asFW3yXl).
+
+Initially, [Ray Tracing in One Weekend series](https://raytracing.github.io/) was followed but it was not good enough for real time application.
 
 ## Libraries
 - [GLFW](https://github.com/glfw/glfw)

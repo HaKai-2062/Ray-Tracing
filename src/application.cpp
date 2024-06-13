@@ -76,7 +76,7 @@ void Application::MainLoop()
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		m_Camera->OnResize(m_ViewportWidth, m_ViewportHeight);
-		m_Camera->OnUpdate(frameTime - (float)glfwGetTime());
+		m_Camera->OnUpdate((float)glfwGetTime() - frameTime);
 		frameTime = (float)glfwGetTime();
 
 		ImGuiID dockSpaceID;
