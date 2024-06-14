@@ -10,6 +10,7 @@
 #include "input.hpp"
 #include "ray.hpp"
 #include "utility.hpp"
+#include "sphere.hpp"
 
 Camera::Camera(float verticalFOV, float nearClip, float farClip)
 	: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip)
@@ -18,6 +19,19 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
 	m_Position = glm::vec3(0.0f, 0.0f, 3.0f);
 
 	std::cout << "Camera: Initialized" << std::endl;
+	
+	Sphere* sphere1 = new Sphere;
+	sphere1->Radius = 0.5f;
+	sphere1->Origin = glm::vec3(-0.8f, 0.0f, -0.0f);
+	sphere1->Albedo = glm::vec3(0.7f, 0.7f, 0.7f);
+
+	Sphere* sphere2 = new Sphere;
+	sphere2->Radius = 1.5f;
+	sphere2->Origin = glm::vec3(0.0f, 0.0f, -5.0f);
+	sphere2->Albedo = glm::vec3(0.9f, 0.1f, 0.2f);
+
+	m_Shapes.push_back(sphere1);
+	m_Shapes.push_back(sphere2);
 }
 
 Camera* Camera::CreateInstance(float verticalFOV, float nearClip, float farClip)
@@ -171,34 +185,59 @@ void Camera::Render()
 
 glm::vec4 Camera::TraceRay(const Ray& ray)
 {
-	float radius = 0.5f;
-	//rayDir = glm::normalize(rayDir);
-
-	// (bx^2 + by^2)t^2 + 2(axbx +ayby)t + (ax^2 + ay^2 - r^2)
-	// a = rayOrigin, b = rayDir, r = radius, t = hitDistance
-
-	float a = glm::dot(ray.Dir, ray.Dir);
-	float b = 2.0f * glm::dot(ray.Origin, ray.Dir);
-	float c = glm::dot(ray.Origin, ray.Origin) - radius * radius;
-
-	float discriminant = b * b - 4.0f * a * c;
-
-	if (discriminant < 0.0f)
+	if (m_Shapes.size() == 0)
+	{
 		return { 0.0f, 0.0f, 0.0f, 1.0f };
+	}
 
-	//float t0 = (-b + glm::sqrt(discriminant)) / (2 * a);
-	float t1 = (-b - glm::sqrt(discriminant)) / (2.0f * a);
+	float closestT = std::numeric_limits<float>::max();
+	Sphere* closestSphere = nullptr;
+	glm::vec3 closestOrigin;
+
+	for (Shape* shape : m_Shapes)
+	{
+		Sphere* sphere = static_cast<Sphere*>(shape);
+
+		glm::vec3 origin = ray.Origin - sphere->Origin;
+		//rayDir = glm::normalize(rayDir);
+
+		float a = glm::dot(ray.Dir, ray.Dir);
+		float b = 2.0f * glm::dot(origin, ray.Dir);
+		float c = glm::dot(origin, origin) - sphere->Radius * sphere->Radius;
+
+		float discriminant = b * b - 4.0f * a * c;
+
+		if (discriminant < 0.0f)
+		{
+			continue;
+		}
+
+		//float t0 = (-b + glm::sqrt(discriminant)) / (2 * a);
+		float t1 = (-b - glm::sqrt(discriminant)) / (2.0f * a);
+
+		if (t1 < closestT)
+		{
+			closestT = t1;
+			closestSphere = sphere;
+			closestOrigin = origin;
+		}
+	}
+
+	if (closestSphere == nullptr)
+	{
+		return { 0.0f, 0.0f, 0.0f, 1.0f };
+	}
 
 	//glm::vec3 h0 = rayOrigin + rayDir * t0;
-	glm::vec3 hitPoint = ray.Origin + ray.Dir * t1;
+	glm::vec3 hitPoint = closestOrigin + ray.Dir * closestT;
 	glm::vec3 sphereOrigin{ 0.0f };
 
-	glm::vec3 normal = glm::normalize(hitPoint - sphereOrigin);
+	glm::vec3 normal = glm::normalize(hitPoint);
 	glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
 
 	float dot = glm::max(glm::dot(normal, -lightDir), 0.0f);
 
-	glm::vec3 sphereColor{ 1.0f, 0.0f, 1.0f };
+	glm::vec3 sphereColor = closestSphere->Albedo;
 	sphereColor *= dot;
 	return { sphereColor, 1.0f };
 }

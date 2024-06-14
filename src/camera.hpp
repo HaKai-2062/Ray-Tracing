@@ -2,7 +2,8 @@
 
 #include <glm/glm.hpp>
 
-class Ray;
+struct Ray;
+class Shape;
 
 class Camera
 {
@@ -31,6 +32,7 @@ private:
 
 private:
 	std::vector<uint32_t> m_ImageData;
+	std::vector<Shape*> m_Shapes;
 
 	glm::mat4 m_Projection{ 1.0f };
 	glm::mat4 m_View{ 1.0f };
