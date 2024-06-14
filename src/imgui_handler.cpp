@@ -84,6 +84,11 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
     std::vector<Sphere>& spheres = camera->m_Sphere;
     std::vector<Material>& materials = camera->m_Material;
 
+    ImGui::Text("Sky Color");
+    ImGui::Separator();
+    ImGui::ColorEdit3("Sky", glm::value_ptr(camera->m_SkyColor));
+    ImGui::NewLine();
+
     ImGui::Text("Spheres");
     ImGui::Separator();
     for (int i = 0; i < spheres.size(); i++)
@@ -93,9 +98,9 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
         Sphere& sphere = spheres[i];
         ImGui::DragFloat3("Position", glm::value_ptr(sphere.Origin), 0.1f);
         ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
-        ImGui::DragInt("MaterailID", &sphere.MaterialIndex, 0.1f, 0, static_cast<int>(materials.size())-1);
+        ImGui::DragInt("MaterailID", &sphere.MaterialIndex, 0.1f, 0, static_cast<int>(materials.size()) - 1);
 
-        ImGui::Separator();
+        ImGui::NewLine();
         ImGui::PopID();
     }
 
@@ -112,7 +117,7 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
         ImGui::DragFloat("Roughness", &material.Roughness, 0.001f, 0.0f, 1.0f);
         ImGui::DragFloat("Metallic", &material.Metallic, 0.001f, 0.0f, 1.0f);
 
-        ImGui::Separator();
+        ImGui::NewLine();
         ImGui::PopID();
     }
 

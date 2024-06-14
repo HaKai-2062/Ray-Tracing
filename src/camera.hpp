@@ -35,6 +35,7 @@ public:
 	// Controlled by ImGui
 	std::vector<Sphere> m_Sphere;
 	std::vector<Material> m_Material;
+	glm::vec3 m_SkyColor{0.6f, 0.7f, 0.9f};
 
 private:
 	std::vector<uint32_t> m_ImageData;

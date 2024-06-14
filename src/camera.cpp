@@ -193,7 +193,7 @@ void Camera::Render()
 		for (int x = 0; x < m_ViewportWidth; x++)
 		{
 			glm::vec4 clampedRay = glm::clamp(RayGen(x, y), glm::vec4(0.0f), glm::vec4(1.0f));
-			m_ImageData[x + y * m_ViewportWidth] = ConvertToRGBA(clampedRay);
+			m_ImageData[x + y * m_ViewportWidth] = Utility::ConvertToRGBA(clampedRay);
 		}
 	}
 }
@@ -206,29 +206,30 @@ glm::vec4 Camera::RayGen(int x, int y)
 	glm::vec3 color{ 0.0f };
 	float multiplier = 1.0f;
 
-	int bounces = 2;
+	int bounces = 5;
 	for (int i = 0; i < bounces; i++)
 	{
 		HitPayload payload = ray.TraceRay(m_Sphere);
 
 		if (payload.HitDistance < 0.0f)
 		{
-			glm::vec3 skyColor{ 0.0f, 0.0f, 0.0f };
-			color += skyColor;
+			color += m_SkyColor * multiplier;
 			break;
 		}
 
 		glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
 		float lightIntensity = glm::max(glm::dot(payload.WorldNormal, -lightDir), 0.0f);
 
-		Sphere sphere = m_Sphere[payload.ObjectID];
-		glm::vec3 sphereColor = m_Material[sphere.MaterialIndex].Albedo;
+		const Sphere& sphere = m_Sphere[payload.ObjectID];
+		const Material& material = m_Material[sphere.MaterialIndex];
+
+		glm::vec3 sphereColor = material.Albedo;
 		sphereColor *= lightIntensity;
 		color += sphereColor;
 
-		multiplier *= 0.7f;
+		multiplier *= 0.5f;
 		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.001f;
-		ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal);
+		ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + material.Roughness * Utility::RandomVec3(-0.5f, 0.5f));
 	}
 
 	return {color, 1.0f};

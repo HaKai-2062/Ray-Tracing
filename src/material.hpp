@@ -5,7 +5,7 @@
 struct Material
 {
 	float Metallic = 1.0f;
-	float Roughness = 1.0;
+	float Roughness = 1.0f;
 
 	glm::vec3 Albedo{ 1.0f };
 };
