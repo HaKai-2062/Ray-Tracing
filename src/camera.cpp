@@ -1,4 +1,4 @@
-#include <iostream>
+#include <execution>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -160,6 +160,14 @@ bool Camera::OnResize(uint32_t width, uint32_t height)
 	delete[] m_AccumulatedData;
 	m_AccumulatedData = new glm::vec4[m_ViewportWidth * m_ViewportHeight];
 
+	m_HorizontalIter.resize(m_ViewportWidth);
+	m_VerticalIter.resize(m_ViewportHeight);
+
+	for (uint32_t i = 0; i < m_ViewportWidth; i++)
+		m_HorizontalIter[i] = i;
+	for (uint32_t i = 0; i < m_ViewportHeight; i++)
+		m_VerticalIter[i] = i;
+
 	RecalculateProjection();
 	RecalculateRayDirs();
 
@@ -203,18 +211,39 @@ void Camera::Render()
 		memset(m_AccumulatedData, 0, m_ViewportWidth * m_ViewportHeight * sizeof(glm::vec4));
 	}
 
-	for (int y = 0; y < m_ViewportHeight; y++)
+	if (m_MultiThreading)
 	{
-		for (int x = 0; x < m_ViewportWidth; x++)
+		std::for_each(std::execution::par, m_VerticalIter.begin(), m_VerticalIter.end(),
+			[this](uint32_t y)
+			{
+				for (int x = 0; x < m_ViewportWidth; x++)
+				{
+					glm::vec4 color = RayGen(x, y);
+					m_AccumulatedData[x + y * m_ViewportWidth] += color;
+					
+					glm::vec4 accumulatedColor = m_AccumulatedData[x + y * m_ViewportWidth];
+					accumulatedColor /= (float)m_FrameIndex;
+
+					accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+					m_ImageData[x + y * m_ViewportWidth] = Utility::ConvertToRGBA(accumulatedColor);
+				}
+			});
+	}
+	else
+	{
+		for (int y = 0; y < m_ViewportHeight; y++)
 		{
-			glm::vec4 color = RayGen(x, y);
-			m_AccumulatedData[x + y * m_ViewportWidth] += color;
+			for (int x = 0; x < m_ViewportWidth; x++)
+			{
+				glm::vec4 color = RayGen(x, y);
+				m_AccumulatedData[x + y * m_ViewportWidth] += color;
 
-			glm::vec4 accumulatedColor = m_AccumulatedData[x + y * m_ViewportWidth];
-			accumulatedColor /= (float)m_FrameIndex;
+				glm::vec4 accumulatedColor = m_AccumulatedData[x + y * m_ViewportWidth];
+				accumulatedColor /= (float)m_FrameIndex;
 
-			accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-			m_ImageData[x + y * m_ViewportWidth] = Utility::ConvertToRGBA(accumulatedColor);
+				accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+				m_ImageData[x + y * m_ViewportWidth] = Utility::ConvertToRGBA(accumulatedColor);
+			}
 		}
 	}
 

@@ -88,7 +88,9 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
     {
         camera->ResetFrameIndex();
     }
+
     ImGui::Checkbox("Accumulate", &camera->m_Accumulate);
+    ImGui::Checkbox("MultiThreading", &camera->m_MultiThreading);
 
     ImGui::Text("Sky Color");
     ImGui::Separator();

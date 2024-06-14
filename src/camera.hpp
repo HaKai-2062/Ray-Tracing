@@ -38,11 +38,14 @@ public:
 	std::vector<Material> m_Material;
 	glm::vec3 m_SkyColor{0.6f, 0.7f, 0.9f};
 	bool m_Accumulate = true;
+	bool m_MultiThreading = false;
 
 private:
-	uint32_t* m_ImageData;
-	glm::vec4* m_AccumulatedData;
+	uint32_t* m_ImageData = nullptr;
+	glm::vec4* m_AccumulatedData = nullptr;
 	size_t m_FrameIndex = 1;
+
+	std::vector<uint32_t> m_HorizontalIter, m_VerticalIter;
 
 	glm::mat4 m_Projection{ 1.0f };
 	glm::mat4 m_View{ 1.0f };
@@ -54,14 +57,12 @@ private:
 	float m_FarClip = 100.0f;
 	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
-	float m_RotationSpeed = 0.3f;
-
 	glm::vec3 m_Position{ 0.0f, 0.0f, 0.0f };
 	glm::vec3 m_ForwardDir{ 0.0f, 0.0f, 0.0f };
-
 	// Cached ray directions
 	std::vector<glm::vec3> m_RayDirs;
 
 	glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
+	float m_RotationSpeed = 0.3f;
 
 };
