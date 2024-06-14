@@ -11,6 +11,7 @@
 #include "ray.hpp"
 #include "utility.hpp"
 #include "sphere.hpp"
+#include "hit_payload.hpp"
 
 Camera::Camera(float verticalFOV, float nearClip, float farClip)
 	: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip)
@@ -169,75 +170,48 @@ void Camera::RecalculateRayDirs()
 
 void Camera::Render()
 {
-	Ray ray{};
-	ray.Origin = m_Position;
-
 	for (int y = 0; y < m_ViewportHeight; y++)
 	{
 		for (int x = 0; x < m_ViewportWidth; x++)
 		{
-			ray.Dir = m_RayDirs[x + y * m_ViewportWidth];
-			glm::vec4 clampedRay = glm::clamp(TraceRay(ray), glm::vec4(0.0f), glm::vec4(1.0f));
+			glm::vec4 clampedRay = glm::clamp(RayGen(x, y), glm::vec4(0.0f), glm::vec4(1.0f));
 			m_ImageData[x + y * m_ViewportWidth] = ConvertToRGBA(clampedRay);
 		}
 	}
 }
 
-glm::vec4 Camera::TraceRay(const Ray& ray)
+glm::vec4 Camera::RayGen(int x, int y)
 {
-	if (m_Shapes.size() == 0)
+	Ray ray{};
+	ray.Origin = m_Position;
+	ray.Dir = m_RayDirs[x + y * m_ViewportWidth];
+	glm::vec3 color{ 0.0f };
+	float multiplier = 1.0f;
+
+	int bounces = 2;
+	for (int i = 0; i < bounces; i++)
 	{
-		return { 0.0f, 0.0f, 0.0f, 1.0f };
-	}
+		HitPayload payload = ray.TraceRay(m_Shapes);
 
-	float closestT = std::numeric_limits<float>::max();
-	Sphere* closestSphere = nullptr;
-	glm::vec3 closestOrigin;
-
-	for (Shape* shape : m_Shapes)
-	{
-		Sphere* sphere = static_cast<Sphere*>(shape);
-
-		glm::vec3 origin = ray.Origin - sphere->Origin;
-		//rayDir = glm::normalize(rayDir);
-
-		float a = glm::dot(ray.Dir, ray.Dir);
-		float b = 2.0f * glm::dot(origin, ray.Dir);
-		float c = glm::dot(origin, origin) - sphere->Radius * sphere->Radius;
-
-		float discriminant = b * b - 4.0f * a * c;
-
-		if (discriminant < 0.0f)
+		if (payload.HitDistance < 0.0f)
 		{
-			continue;
+			glm::vec3 skyColor{ 0.0f, 0.0f, 0.0f };
+			color += skyColor;
+			break;
 		}
 
-		//float t0 = (-b + glm::sqrt(discriminant)) / (2 * a);
-		float t1 = (-b - glm::sqrt(discriminant)) / (2.0f * a);
+		glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
+		float lightIntensity = glm::max(glm::dot(payload.WorldNormal, -lightDir), 0.0f);
 
-		if (t1 < closestT)
-		{
-			closestT = t1;
-			closestSphere = sphere;
-			closestOrigin = origin;
-		}
+		Sphere* sphere = static_cast<Sphere*>(m_Shapes[payload.ObjectID]);
+		glm::vec3 sphereColor = sphere->Albedo;
+		sphereColor *= lightIntensity;
+		color += sphereColor;
+
+		multiplier *= 0.7f;
+		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.001f;
+		ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal);
 	}
 
-	if (closestSphere == nullptr)
-	{
-		return { 0.0f, 0.0f, 0.0f, 1.0f };
-	}
-
-	//glm::vec3 h0 = rayOrigin + rayDir * t0;
-	glm::vec3 hitPoint = closestOrigin + ray.Dir * closestT;
-	glm::vec3 sphereOrigin{ 0.0f };
-
-	glm::vec3 normal = glm::normalize(hitPoint);
-	glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
-
-	float dot = glm::max(glm::dot(normal, -lightDir), 0.0f);
-
-	glm::vec3 sphereColor = closestSphere->Albedo;
-	sphereColor *= dot;
-	return { sphereColor, 1.0f };
+	return {color, 1.0f};
 }

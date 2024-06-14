@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-struct Ray;
+class Ray;
 class Shape;
 
 class Camera
@@ -27,8 +27,9 @@ private:
 	void RecalculateView();
 	void RecalculateRayDirs();
 
+
 	// Renderer specific
-	glm::vec4 TraceRay(const Ray& ray);
+	glm::vec4 RayGen(int x, int y);
 
 private:
 	std::vector<uint32_t> m_ImageData;
