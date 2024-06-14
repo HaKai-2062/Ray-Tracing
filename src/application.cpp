@@ -80,7 +80,7 @@ void Application::MainLoop()
 		frameTime = (float)glfwGetTime();
 
 		ImGuiID dockSpaceID;
-		ImGuiHandler::BeginFrame(dockSpaceID);
+		ImGuiHandler::BeginFrame(dockSpaceID, m_Camera);
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);

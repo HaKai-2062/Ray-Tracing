@@ -31,10 +31,13 @@ private:
 	// Renderer specific
 	glm::vec4 RayGen(int x, int y);
 
-private:
-	std::vector<uint32_t> m_ImageData;
+public:
+	// Controlled by ImGui
 	std::vector<Sphere> m_Sphere;
 	std::vector<Material> m_Material;
+
+private:
+	std::vector<uint32_t> m_ImageData;
 
 	glm::mat4 m_Projection{ 1.0f };
 	glm::mat4 m_View{ 1.0f };

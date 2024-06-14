@@ -6,8 +6,12 @@
 #include <imgui_internal.h>
 
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "imgui_handler.hpp"
+#include "camera.hpp"
+#include "sphere.hpp"
+#include "material.hpp"
 
 void ImGuiHandler::Init(const char* glslVersion, GLFWwindow* window)
 {
@@ -61,7 +65,7 @@ void ImGuiHandler::Init(const char* glslVersion, GLFWwindow* window)
         window_flags |= ImGuiWindowFlags_NoBackground;
 }
 
-void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID)
+void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -73,6 +77,45 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID)
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Text("Frame delay: %.3f ms", 1000.0f / io.Framerate);
     ImGui::Text("Frames per second: %.1f", io.Framerate);
+    ImGui::End();
+
+    ImGui::Begin("World");
+    
+    std::vector<Sphere>& spheres = camera->m_Sphere;
+    std::vector<Material>& materials = camera->m_Material;
+
+    ImGui::Text("Spheres");
+    ImGui::Separator();
+    for (int i = 0; i < spheres.size(); i++)
+    {
+        ImGui::PushID(i);
+
+        Sphere& sphere = spheres[i];
+        ImGui::DragFloat3("Position", glm::value_ptr(sphere.Origin), 0.1f);
+        ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
+        ImGui::DragInt("MaterailID", &sphere.MaterialIndex, 0.1f, 0, static_cast<int>(materials.size())-1);
+
+        ImGui::Separator();
+        ImGui::PopID();
+    }
+
+    ImGui::NewLine();
+    ImGui::Text("Materials");
+    ImGui::Separator();
+
+    for (int i = 0; i < materials.size(); i++)
+    {
+        ImGui::PushID(i);
+
+        Material& material = materials[i];
+        ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+        ImGui::DragFloat("Roughness", &material.Roughness, 0.001f, 0.0f, 1.0f);
+        ImGui::DragFloat("Metallic", &material.Metallic, 0.001f, 0.0f, 1.0f);
+
+        ImGui::Separator();
+        ImGui::PopID();
+    }
+
     ImGui::End();
 }
 
@@ -86,8 +129,8 @@ void ImGuiHandler::DrawPixels(ImGuiID& dockSpaceID, unsigned int textureID, int&
     ImGui::Begin("SceneWindow", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_HorizontalScrollbar);
     ImVec2 getRegion = ImGui::GetContentRegionAvail();
 
-    viewportWidth = getRegion.x;
-    viewportHeight = getRegion.y;
+    viewportWidth = static_cast<int>(getRegion.x);
+    viewportHeight = static_cast<int>(getRegion.y);
 
     // To invert the image
     ImGui::Image((void*)(unsigned int)(textureID), getRegion, ImVec2(0, 1), ImVec2(1, 0));
