@@ -76,7 +76,11 @@ void Application::MainLoop()
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		m_Camera->OnResize(m_ViewportWidth, m_ViewportHeight);
-		m_Camera->OnUpdate((float)glfwGetTime() - frameTime);
+		// returns true on Move event
+		if (m_Camera->OnUpdate((float)glfwGetTime() - frameTime))
+		{
+			m_Camera->ResetFrameIndex();
+		}
 		frameTime = (float)glfwGetTime();
 
 		ImGuiID dockSpaceID;
@@ -101,7 +105,7 @@ void Application::CreateTexture(unsigned int& textureID)
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_ViewportWidth, m_ViewportHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_Camera->ReadImageData().data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_ViewportWidth, m_ViewportHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_Camera->ReadImageData());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
@@ -111,7 +115,7 @@ void Application::CreateTexture(unsigned int& textureID)
 void Application::UpdateTexture(unsigned int& textureID)
 {
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_ViewportWidth, m_ViewportHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_Camera->ReadImageData().data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_ViewportWidth, m_ViewportHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, m_Camera->ReadImageData());
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

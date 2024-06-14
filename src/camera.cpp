@@ -30,7 +30,7 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
 
 	{
 		Material material;
-		material.Albedo = glm::vec3(1.0f, 0.0f, 1.0f);
+		material.Albedo = glm::vec3(0.0f, 0.0f, 1.0f);
 		m_Material.push_back(material);
 	}
 
@@ -61,10 +61,13 @@ Camera* Camera::CreateInstance(float verticalFOV, float nearClip, float farClip)
 
 Camera::~Camera()
 {
+	delete[] m_ImageData;
+	delete[] m_AccumulatedData;
+
 	std::cout << "Camera: Terminated" << std::endl;
 }
 
-void Camera::OnUpdate(float ts)
+bool Camera::OnUpdate(float ts)
 {
 	glm::vec2 mousePos = Input::GetMousePosition();
 	float mouseSensitivity = 0.002f;
@@ -75,7 +78,7 @@ void Camera::OnUpdate(float ts)
 	if (!Input::IsMouseButtonDown(MouseButton::Right))
 	{
 		glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL + (int)CursorMode::Normal);
-		return;
+		return false;
 	}
 
 	glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL + (int)CursorMode::Locked);
@@ -139,6 +142,8 @@ void Camera::OnUpdate(float ts)
 		RecalculateView();
 		RecalculateRayDirs();
 	}
+
+	return moved;
 }
 
 void Camera::OnResize(uint32_t width, uint32_t height)
@@ -149,8 +154,11 @@ void Camera::OnResize(uint32_t width, uint32_t height)
 	m_ViewportWidth = width;
 	m_ViewportHeight = height;
 
-	m_ImageData.clear();
-	m_ImageData.resize(m_ViewportWidth * m_ViewportHeight);
+	delete[] m_ImageData;
+	m_ImageData = new uint32_t[m_ViewportWidth * m_ViewportHeight];
+
+	delete[] m_AccumulatedData;
+	m_AccumulatedData = new glm::vec4[m_ViewportWidth * m_ViewportHeight];
 
 	RecalculateProjection();
 	RecalculateRayDirs();
@@ -188,13 +196,33 @@ void Camera::RecalculateRayDirs()
 
 void Camera::Render()
 {
+	if (m_FrameIndex == 1)
+	{
+		memset(m_AccumulatedData, 0, m_ViewportWidth * m_ViewportHeight * sizeof(glm::vec4));
+	}
+
 	for (int y = 0; y < m_ViewportHeight; y++)
 	{
 		for (int x = 0; x < m_ViewportWidth; x++)
 		{
-			glm::vec4 clampedRay = glm::clamp(RayGen(x, y), glm::vec4(0.0f), glm::vec4(1.0f));
-			m_ImageData[x + y * m_ViewportWidth] = Utility::ConvertToRGBA(clampedRay);
+			glm::vec4 color = RayGen(x, y);
+			m_AccumulatedData[x + y * m_ViewportWidth] += color;
+
+			glm::vec4 accumulatedColor = m_AccumulatedData[x + y * m_ViewportWidth];
+			accumulatedColor /= (float)m_FrameIndex;
+
+			accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+			m_ImageData[x + y * m_ViewportWidth] = Utility::ConvertToRGBA(accumulatedColor);
 		}
+	}
+
+	if (m_Accumulate)
+	{
+		m_FrameIndex++;
+	}
+	else
+	{
+		ResetFrameIndex();
 	}
 }
 

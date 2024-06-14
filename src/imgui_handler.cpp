@@ -84,6 +84,12 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
     std::vector<Sphere>& spheres = camera->m_Sphere;
     std::vector<Material>& materials = camera->m_Material;
 
+    if (ImGui::Button("Reset"))
+    {
+        camera->ResetFrameIndex();
+    }
+    ImGui::Checkbox("Accumulate", &camera->m_Accumulate);
+
     ImGui::Text("Sky Color");
     ImGui::Separator();
     ImGui::ColorEdit3("Sky", glm::value_ptr(camera->m_SkyColor));
