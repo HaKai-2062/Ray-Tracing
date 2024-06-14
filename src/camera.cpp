@@ -146,10 +146,10 @@ bool Camera::OnUpdate(float ts)
 	return moved;
 }
 
-void Camera::OnResize(uint32_t width, uint32_t height)
+bool Camera::OnResize(uint32_t width, uint32_t height)
 {
 	if (width == m_ViewportWidth && height == m_ViewportHeight)
-		return;
+		return false;
 
 	m_ViewportWidth = width;
 	m_ViewportHeight = height;
@@ -162,6 +162,8 @@ void Camera::OnResize(uint32_t width, uint32_t height)
 
 	RecalculateProjection();
 	RecalculateRayDirs();
+
+	return true;
 }
 
 void Camera::RecalculateProjection()

@@ -75,9 +75,10 @@ void Application::MainLoop()
 
 	while (!glfwWindowShouldClose(m_Window))
 	{
-		m_Camera->OnResize(m_ViewportWidth, m_ViewportHeight);
-		// returns true on Move event
-		if (m_Camera->OnUpdate((float)glfwGetTime() - frameTime))
+		bool resized = m_Camera->OnResize(m_ViewportWidth, m_ViewportHeight);
+		bool moved = m_Camera->OnUpdate((float)glfwGetTime() - frameTime);
+
+		if (resized || moved)
 		{
 			m_Camera->ResetFrameIndex();
 		}
