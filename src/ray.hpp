@@ -9,9 +9,9 @@ class Ray
 {
 public:
 	Ray() = default;
-	HitPayload TraceRay(const std::vector<Shape*>& m_Shapes);
-	HitPayload ClosestHit(const std::vector<Shape*>& m_Shapes, float hitDistance, int objectID);
-	HitPayload Miss();
+	HitPayload TraceRay(const std::vector<Sphere>& spheres) const;
+	HitPayload ClosestHit(const std::vector<Sphere>& spheres, float hitDistance, int objectID) const;
+	HitPayload Miss() const;
 
 public:
 	glm::vec3 Origin;

@@ -3,7 +3,8 @@
 #include <glm/glm.hpp>
 
 class Ray;
-class Shape;
+struct Sphere;
+struct Material;
 
 class Camera
 {
@@ -27,13 +28,13 @@ private:
 	void RecalculateView();
 	void RecalculateRayDirs();
 
-
 	// Renderer specific
 	glm::vec4 RayGen(int x, int y);
 
 private:
 	std::vector<uint32_t> m_ImageData;
-	std::vector<Shape*> m_Shapes;
+	std::vector<Sphere> m_Sphere;
+	std::vector<Material> m_Material;
 
 	glm::mat4 m_Projection{ 1.0f };
 	glm::mat4 m_View{ 1.0f };

@@ -12,27 +12,45 @@
 #include "utility.hpp"
 #include "sphere.hpp"
 #include "hit_payload.hpp"
+#include "material.hpp"
 
 Camera::Camera(float verticalFOV, float nearClip, float farClip)
 	: m_VerticalFOV(verticalFOV), m_NearClip(nearClip), m_FarClip(farClip)
 {
 	m_ForwardDir = glm::vec3(0.0f, 0.0f, -1.0f);
-	m_Position = glm::vec3(0.0f, 0.0f, 3.0f);
+	m_Position = glm::vec3(0.0f, 0.0f, 6.0f);
 
 	std::cout << "Camera: Initialized" << std::endl;
-	
-	Sphere* sphere1 = new Sphere;
-	sphere1->Radius = 0.5f;
-	sphere1->Origin = glm::vec3(-0.8f, 0.0f, -0.0f);
-	sphere1->Albedo = glm::vec3(0.7f, 0.7f, 0.7f);
 
-	Sphere* sphere2 = new Sphere;
-	sphere2->Radius = 1.5f;
-	sphere2->Origin = glm::vec3(0.0f, 0.0f, -5.0f);
-	sphere2->Albedo = glm::vec3(0.9f, 0.1f, 0.2f);
+	{
+		Material material;
+		material.Albedo = glm::vec3(1.0f, 0.0f, 0.0f);
+		m_Material.push_back(material);
+	}
 
-	m_Shapes.push_back(sphere1);
-	m_Shapes.push_back(sphere2);
+	{
+		Material material;
+		material.Albedo = glm::vec3(1.0f, 0.0f, 1.0f);
+		m_Material.push_back(material);
+	}
+
+	{
+		Sphere sphere;
+
+		sphere.Radius = 1.0f;
+		sphere.Origin = glm::vec3(0.0f, 0.0f, 0.0f);
+		sphere.MaterialIndex = 0;
+		m_Sphere.push_back(sphere);
+	}
+
+	{
+		Sphere sphere;
+
+		sphere.Radius = 100.0f;
+		sphere.Origin = glm::vec3(0.0f, -101.0f, 0.0f);
+		sphere.MaterialIndex = 1;
+		m_Sphere.push_back(sphere);
+	}
 }
 
 Camera* Camera::CreateInstance(float verticalFOV, float nearClip, float farClip)
@@ -191,7 +209,7 @@ glm::vec4 Camera::RayGen(int x, int y)
 	int bounces = 2;
 	for (int i = 0; i < bounces; i++)
 	{
-		HitPayload payload = ray.TraceRay(m_Shapes);
+		HitPayload payload = ray.TraceRay(m_Sphere);
 
 		if (payload.HitDistance < 0.0f)
 		{
@@ -203,8 +221,8 @@ glm::vec4 Camera::RayGen(int x, int y)
 		glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
 		float lightIntensity = glm::max(glm::dot(payload.WorldNormal, -lightDir), 0.0f);
 
-		Sphere* sphere = static_cast<Sphere*>(m_Shapes[payload.ObjectID]);
-		glm::vec3 sphereColor = sphere->Albedo;
+		Sphere sphere = m_Sphere[payload.ObjectID];
+		glm::vec3 sphereColor = m_Material[sphere.MaterialIndex].Albedo;
 		sphereColor *= lightIntensity;
 		color += sphereColor;
 
