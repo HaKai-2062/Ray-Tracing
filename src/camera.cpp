@@ -24,33 +24,55 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
 
 	{
 		Material material;
-		material.Albedo = glm::vec3(1.0f, 0.0f, 0.0f);
+		material.Albedo = glm::vec3(0.0f, 0.0f, 1.0f);
+		material.Roughness = 0.0f;
 		m_Material.push_back(material);
 	}
 
 	{
 		Material material;
-		material.Albedo = glm::vec3(0.0f, 0.0f, 1.0f);
+		material.Albedo = glm::vec3(1.0f, 0.0f, 0.0f);
+		material.Roughness = 0.1f;
 		m_Material.push_back(material);
 	}
 
-	{
-		Sphere sphere;
 
-		sphere.Radius = 1.0f;
-		sphere.Origin = glm::vec3(0.0f, 0.0f, 0.0f);
-		sphere.MaterialIndex = 0;
-		m_Sphere.push_back(sphere);
+	{
+		Material material;
+		material.Albedo = glm::vec3(0.8f, 0.3f, 0.1f);
+		material.Roughness = 0.1f;
+		material.EmissionColor = material.Albedo;
+		m_Material.push_back(material);
 	}
+
 
 	{
 		Sphere sphere;
 
 		sphere.Radius = 100.0f;
 		sphere.Origin = glm::vec3(0.0f, -101.0f, 0.0f);
+		sphere.MaterialIndex = 0;
+		m_Sphere.push_back(sphere);
+	}	
+	
+	{
+		Sphere sphere;
+
+		sphere.Radius = 1.0f;
+		sphere.Origin = glm::vec3(0.0f, 0.0f, 0.0f);
 		sphere.MaterialIndex = 1;
 		m_Sphere.push_back(sphere);
 	}
+
+	{
+		Sphere sphere;
+
+		sphere.Radius = 1.0f;
+		sphere.Origin = glm::vec3(3.0f, 3.0f, 0.0f);
+		sphere.MaterialIndex = 2;
+		m_Sphere.push_back(sphere);
+	}
+
 }
 
 Camera* Camera::CreateInstance(float verticalFOV, float nearClip, float farClip)
@@ -262,7 +284,8 @@ glm::vec4 Camera::RayGen(int x, int y)
 	Ray ray{};
 	ray.Origin = m_Position;
 	ray.Dir = m_RayDirs[x + y * m_ViewportWidth];
-	glm::vec3 color{ 0.0f };
+	glm::vec3 light{ 0.0f };
+	glm::vec3 contribution{ 1.0f };
 	float multiplier = 1.0f;
 
 	int bounces = 5;
@@ -272,24 +295,20 @@ glm::vec4 Camera::RayGen(int x, int y)
 
 		if (payload.HitDistance < 0.0f)
 		{
-			color += m_SkyColor * multiplier;
+			light += m_SkyColor * contribution;
 			break;
 		}
-
-		glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
-		float lightIntensity = glm::max(glm::dot(payload.WorldNormal, -lightDir), 0.0f);
 
 		const Sphere& sphere = m_Sphere[payload.ObjectID];
 		const Material& material = m_Material[sphere.MaterialIndex];
 
-		glm::vec3 sphereColor = material.Albedo;
-		sphereColor *= lightIntensity;
-		color += sphereColor;
+		contribution *= material.Albedo;
+		light += material.GetEmission() * contribution;
 
-		multiplier *= 0.5f;
 		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.001f;
-		ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + material.Roughness * Utility::RandomVec3(-0.5f, 0.5f));
+		//ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + material.Roughness * Utility::RandomVec3(-0.5f, 0.5f));
+		ray.Dir = glm::normalize(payload.WorldNormal + glm::normalize(Utility::RandomVec3(-1.0f, 1.0f)));
 	}
 
-	return {color, 1.0f};
+	return { light, 1.0f };
 }

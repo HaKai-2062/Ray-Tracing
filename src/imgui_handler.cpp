@@ -124,6 +124,8 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
         ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
         ImGui::DragFloat("Roughness", &material.Roughness, 0.001f, 0.0f, 1.0f);
         ImGui::DragFloat("Metallic", &material.Metallic, 0.001f, 0.0f, 1.0f);
+        ImGui::ColorEdit3("Emission Color", glm::value_ptr(material.EmissionColor));
+        ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.01f, 0.0f, std::numeric_limits<float>::max());
 
         ImGui::NewLine();
         ImGui::PopID();
