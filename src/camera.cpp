@@ -24,27 +24,26 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
 
 	{
 		Material material;
-		material.Albedo = glm::vec3(0.0f, 0.0f, 1.0f);
-		material.Roughness = 0.0f;
+		material.Albedo = glm::vec3(0.9f, 0.9f, 0.9f);
+		material.Roughness = 0.8f;
 		m_Material.push_back(material);
 	}
 
 	{
 		Material material;
-		material.Albedo = glm::vec3(1.0f, 0.0f, 0.0f);
+		material.Albedo = glm::vec3(0.0f, 1.0f, 0.0f);
 		material.Roughness = 0.1f;
 		m_Material.push_back(material);
 	}
-
 
 	{
 		Material material;
 		material.Albedo = glm::vec3(0.8f, 0.3f, 0.1f);
-		material.Roughness = 0.1f;
+		material.Roughness = 0.0f;
 		material.EmissionColor = material.Albedo;
+		material.EmissionPower = 20.0f;
 		m_Material.push_back(material);
 	}
-
 
 	{
 		Sphere sphere;
@@ -238,7 +237,7 @@ void Camera::Render()
 		std::for_each(std::execution::par, m_VerticalIter.begin(), m_VerticalIter.end(),
 			[this](uint32_t y)
 			{
-				for (int x = 0; x < m_ViewportWidth; x++)
+				for (uint32_t x = 0; x < m_ViewportWidth; x++)
 				{
 					glm::vec4 color = RayGen(x, y);
 					m_AccumulatedData[x + y * m_ViewportWidth] += color;
@@ -253,9 +252,9 @@ void Camera::Render()
 	}
 	else
 	{
-		for (int y = 0; y < m_ViewportHeight; y++)
+		for (uint32_t y = 0; y < m_ViewportHeight; y++)
 		{
-			for (int x = 0; x < m_ViewportWidth; x++)
+			for (uint32_t x = 0; x < m_ViewportWidth; x++)
 			{
 				glm::vec4 color = RayGen(x, y);
 				m_AccumulatedData[x + y * m_ViewportWidth] += color;
@@ -284,15 +283,15 @@ glm::vec4 Camera::RayGen(int x, int y)
 	Ray ray{};
 	ray.Origin = m_Position;
 	ray.Dir = m_RayDirs[x + y * m_ViewportWidth];
+	
 	glm::vec3 light{ 0.0f };
 	glm::vec3 contribution{ 1.0f };
-	float multiplier = 1.0f;
 
 	int bounces = 5;
 	for (int i = 0; i < bounces; i++)
 	{
 		HitPayload payload = ray.TraceRay(m_Sphere);
-
+		
 		if (payload.HitDistance < 0.0f)
 		{
 			light += m_SkyColor * contribution;
@@ -307,7 +306,10 @@ glm::vec4 Camera::RayGen(int x, int y)
 
 		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.001f;
 		//ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + material.Roughness * Utility::RandomVec3(-0.5f, 0.5f));
-		ray.Dir = glm::normalize(payload.WorldNormal + glm::normalize(Utility::RandomVec3(-1.0f, 1.0f)));
+		//ray.Dir = glm::normalize(payload.WorldNormal + glm::normalize(Utility::RandomVec3(-1.0f, 1.0f)));
+		//ray.Dir = Utility::RandomOnHemisphere(payload.WorldNormal); 
+		glm::vec3 roughnessImpact = ((material.Roughness == 0.0f) ? glm::vec3(0.0f) : (material.Roughness * Utility::RandomOnHemisphere(payload.WorldNormal)));
+		ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + roughnessImpact);
 	}
 
 	return { light, 1.0f };
