@@ -304,12 +304,23 @@ glm::vec4 Camera::RayGen(int x, int y)
 		contribution *= material.Albedo;
 		light += material.GetEmission() * contribution;
 
+
 		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.001f;
 		//ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + material.Roughness * Utility::RandomVec3(-0.5f, 0.5f));
 		//ray.Dir = glm::normalize(payload.WorldNormal + glm::normalize(Utility::RandomVec3(-1.0f, 1.0f)));
 		//ray.Dir = Utility::RandomOnHemisphere(payload.WorldNormal); 
-		glm::vec3 roughnessImpact = ((material.Roughness == 0.0f) ? glm::vec3(0.0f) : (material.Roughness * Utility::RandomOnHemisphere(payload.WorldNormal)));
-		ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + roughnessImpact);
+		//glm::vec3 roughnessImpact = ((material.Roughness == 0.0f) ? glm::vec3(0.0f) : (material.Roughness * Utility::RandomOnHemisphere(payload.WorldNormal)));
+		//ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + roughnessImpact);
+
+		// Lambertian
+		{
+			ray.Dir = payload.WorldNormal + glm::normalize(Utility::RandomInUnitSphere());
+			
+			// If world normal and randDir become opposite rayDir becomes zero so we make a check for it
+			float tolerance = 0.0001f;
+			if (std::fabs(ray.Dir[0]) < tolerance && std::fabs(ray.Dir[1]) < tolerance && std::fabs(ray.Dir[2]) < tolerance)
+				ray.Dir = payload.WorldNormal;
+		}
 	}
 
 	return { light, 1.0f };
