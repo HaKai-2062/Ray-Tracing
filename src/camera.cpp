@@ -287,7 +287,7 @@ glm::vec4 Camera::RayGen(int x, int y)
 	glm::vec3 light{ 0.0f };
 	glm::vec3 contribution{ 1.0f };
 
-	int bounces = 5;
+	int bounces = 10;
 	for (int i = 0; i < bounces; i++)
 	{
 		HitPayload payload = ray.TraceRay(m_Sphere);
@@ -304,24 +304,76 @@ glm::vec4 Camera::RayGen(int x, int y)
 		contribution *= material.Albedo;
 		light += material.GetEmission() * contribution;
 
-
+		// Avoiding self intersection
 		ray.Origin = payload.WorldPosition + payload.WorldNormal * 0.001f;
-		//ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + material.Roughness * Utility::RandomVec3(-0.5f, 0.5f));
-		//ray.Dir = glm::normalize(payload.WorldNormal + glm::normalize(Utility::RandomVec3(-1.0f, 1.0f)));
-		//ray.Dir = Utility::RandomOnHemisphere(payload.WorldNormal); 
-		//glm::vec3 roughnessImpact = ((material.Roughness == 0.0f) ? glm::vec3(0.0f) : (material.Roughness * Utility::RandomOnHemisphere(payload.WorldNormal)));
-		//ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal + roughnessImpact);
 
-		// Lambertian
+		switch (material.Type)
+		{
+		case Material::Classification::LAMBERTIAN:
 		{
 			ray.Dir = payload.WorldNormal + glm::normalize(Utility::RandomInUnitSphere());
-			
+
 			// If world normal and randDir become opposite rayDir becomes zero so we make a check for it
 			float tolerance = 0.0001f;
 			if (std::fabs(ray.Dir[0]) < tolerance && std::fabs(ray.Dir[1]) < tolerance && std::fabs(ray.Dir[2]) < tolerance)
 				ray.Dir = payload.WorldNormal;
+
+			break;
+		}
+
+		case Material::Classification::METAL:
+		{
+			ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal);
+
+			// Fuzziness or Roughness
+			ray.Dir = glm::normalize(ray.Dir) + (material.Roughness * glm::normalize(Utility::RandomInUnitSphere()));
+
+			bool innerFace = glm::dot(ray.Dir, payload.WorldNormal) < 0;
+
+			// To prevent ray from going inside the sphere
+			if (innerFace)
+				light = glm::vec3(0.0f, 0.0f, 0.0f);
+
+			break;
+		}
+
+		case Material::Classification::DIELECTRIC:
+		{
+			float eta = material.Refractivendex;
+			float cosi = glm::dot(ray.Dir, payload.WorldNormal);
+			float etai = 1.0f, etat = eta;
+			if (cosi > 0) { std::swap(etai, etat); }
+			float etaRatio = etai / etat;
+
+			glm::vec3 refractedDir = glm::refract(ray.Dir, payload.WorldNormal, etaRatio);
+			float fresnelReflectance = Utility::FresnelSchlick(std::fabs(cosi), eta);
+
+			if (glm::length(refractedDir) > 0)
+			{
+				// Both reflection and refraction happen
+				glm::vec3 reflectedDir = glm::reflect(ray.Dir, payload.WorldNormal);
+
+				// Choose either reflection or refraction based on Fresnel term
+				if (Utility::RandomFloat(0.0f, 1.0f) < fresnelReflectance)
+				{
+					ray.Dir = reflectedDir;
+				}
+				else
+				{
+					ray.Dir = refractedDir;
+					ray.Origin = payload.WorldPosition + refractedDir * 0.001f;
+				}
+			}
+			else
+			{
+				// Total internal reflection
+				ray.Dir = glm::reflect(ray.Dir, payload.WorldNormal);
+			}
+
+			break;
+		}
 		}
 	}
-
+	
 	return { light, 1.0f };
 }

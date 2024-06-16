@@ -76,5 +76,14 @@ namespace Utility
         else
             return -onUnitSphere;
     }
+
+    // Approximation of contribution of the Fresnel factor in the specular reflection of light
+    float FresnelSchlick(float cosTheta, float refIdx)
+    {
+    	float r0 = (1.0f - refIdx) / (1.0f + refIdx);
+        r0 = r0 * r0;
+	    return r0 + (1.0f - r0) * pow(1.0f - cosTheta, 5.0f);
+    }
+
 }
 

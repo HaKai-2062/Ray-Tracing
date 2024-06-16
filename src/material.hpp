@@ -4,7 +4,16 @@
 
 struct Material
 {
-	float Metallic = 1.0f;
+	enum class Classification
+	{
+		LAMBERTIAN = 0, METAL, DIELECTRIC, TOTAL
+	};
+
+	const char* TypeNames[(int)Classification::TOTAL] = { "Lambertian", "Metal", "Dielectric " };
+
+	Classification Type = Classification::LAMBERTIAN;
+
+	float Refractivendex = 1.5f;
 	float Roughness = 1.0f;
 
 	glm::vec3 Albedo{ 1.0f };

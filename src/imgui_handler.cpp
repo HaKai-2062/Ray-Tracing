@@ -121,11 +121,21 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
         ImGui::PushID(i);
 
         Material& material = materials[i];
+
+        const char* materialEnum = ((int)material.Type >= 0 && (int)material.Type < (int)Material::Classification::TOTAL) ? material.TypeNames[(int)material.Type] : "Unknown";
+
         ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
-        ImGui::DragFloat("Roughness", &material.Roughness, 0.001f, 0.0f, 1.0f);
-        ImGui::DragFloat("Metallic", &material.Metallic, 0.001f, 0.0f, 1.0f);
+                
+        ImGui::SliderInt("Type", (int *)&material.Type, 0, (int)Material::Classification::TOTAL - 1, materialEnum);
+        
+        if (material.Type == Material::Classification::DIELECTRIC)
+            ImGui::SliderFloat("Reflective Index", &material.Refractivendex, 0, 3.0f);
+
+        if (material.Type == Material::Classification::METAL)
+            ImGui::DragFloat("Roughness", &material.Roughness, 0.001f, 0.0f, 1.0f);
+        
         ImGui::ColorEdit3("Emission Color", glm::value_ptr(material.EmissionColor));
-        ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.01f, 0.0f, std::numeric_limits<float>::max());
+        ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.5f, 0.0f, std::numeric_limits<float>::max());
 
         ImGui::NewLine();
         ImGui::PopID();
