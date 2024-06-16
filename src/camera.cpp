@@ -22,6 +22,129 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
 
 	std::cout << "Camera: Initialized" << std::endl;
 
+	/*
+	{
+		Material ground;
+		ground.Albedo = glm::vec3(0.5f, 0.5f, 0.5f);
+		ground.Type = Material::Classification::LAMBERTIAN;
+		m_Material.push_back(ground);
+	}
+	{
+		Sphere ground;
+		ground.Origin = glm::vec3(0.0f, -1000.f, 0.0f);
+		ground.Radius = 1000.0f;
+		ground.MaterialIndex = (int)m_Material.size()-1;
+		m_Sphere.push_back(ground);
+	}
+
+	{
+		Material dielectric;
+		dielectric.Refractivendex = 1.5f;
+		dielectric.Type = Material::Classification::DIELECTRIC;
+		m_Material.push_back(dielectric);
+	}
+	{
+		Sphere dielectric;
+		dielectric.Origin = glm::vec3(0.0f, 1.0f, 0.0f);
+		dielectric.Radius = 1.0f;
+		dielectric.MaterialIndex = (int)m_Material.size() - 1;
+		m_Sphere.push_back(dielectric);
+	}
+
+	{
+		Material lambertian;
+		lambertian.Albedo = glm::vec3(0.4f, 0.2f, 0.1f);
+		lambertian.Type = Material::Classification::LAMBERTIAN;
+		m_Material.push_back(lambertian);
+	}
+	{
+		Sphere lambertian;
+		lambertian.Origin = glm::vec3(-4.0f, 1.0f, 0.0f);
+		lambertian.Radius = 1.0f;
+		lambertian.MaterialIndex = (int)m_Material.size() - 1;
+		m_Sphere.push_back(lambertian);
+	}
+
+	{
+		Material metal;
+		metal.Albedo = glm::vec3(0.7f, 0.6f, 0.5f);
+		metal.Roughness = 0.0f;
+		metal.Type = Material::Classification::METAL;
+		m_Material.push_back(metal);
+	}
+	{
+		Sphere metal;
+		metal.Origin = glm::vec3(4.0f, 1.0f, 0.0f);
+		metal.Radius = 1.0f;
+		metal.MaterialIndex = (int)m_Material.size() - 1;
+		m_Sphere.push_back(metal);
+	}
+
+	for (int a = -8; a < 8; a+=2)
+	{
+		for (int b = -8; b < 8; b+=2)
+		{
+			float chosenMaterial = Utility::RandomFloat(0.0f, 1.0f);
+			glm::vec3 origin(a + 0.9f * Utility::RandomFloat(0.0f, 1.0f), 0.2f, b + 0.9f * Utility::RandomFloat(0.0f, 1.0f));
+			
+			float length = glm::length(origin - glm::vec3(4.0f, 0.2f, 0.0f));
+
+			if (length > 0.9f)
+			{
+				Material material;
+				Sphere sphere;
+
+				if (length < 3.0f)
+				{
+					material.Albedo = Utility::RandomVec3(0.0f, 1.0f);
+					material.Type = Material::Classification::LAMBERTIAN;
+					material.EmissionPower = 20.0;
+					m_Material.push_back(material);
+
+					sphere.Origin = origin;
+					sphere.Radius = 0.2f;
+					sphere.MaterialIndex = (int)m_Material.size() - 1;
+					m_Sphere.push_back(sphere);
+				}
+				else if (chosenMaterial < 0.8f)
+				{
+					material.Albedo = Utility::RandomVec3(0.0f, 1.0f);
+					material.Type = Material::Classification::LAMBERTIAN;
+					m_Material.push_back(material);
+
+					sphere.Origin = origin;
+					sphere.Radius = 0.2f;
+					sphere.MaterialIndex = (int)m_Material.size() - 1;
+					m_Sphere.push_back(sphere);
+				}
+				else if (chosenMaterial < 0.95f)
+				{
+					material.Albedo = Utility::RandomVec3(0.5f, 1.0f);
+					material.Roughness = Utility::RandomFloat(0.0f, 0.5f);
+					material.Type = Material::Classification::METAL;
+					m_Material.push_back(material);
+
+					sphere.Origin = origin;
+					sphere.Radius = 0.2f;
+					sphere.MaterialIndex = (int)m_Material.size() - 1;
+					m_Sphere.push_back(sphere);
+				}
+				else
+				{
+					material.Refractivendex = 1.5f;
+					material.Type = Material::Classification::DIELECTRIC;
+					m_Material.push_back(material);
+
+					sphere.Origin = origin;
+					sphere.Radius = 0.2f;
+					sphere.MaterialIndex = (int)m_Material.size() - 1;
+					m_Sphere.push_back(sphere);
+				}
+			}
+		}
+	}
+	*/
+
 	{
 		Material material;
 		material.Albedo = glm::vec3(0.9f, 0.9f, 0.9f);
@@ -71,7 +194,6 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
 		sphere.MaterialIndex = 2;
 		m_Sphere.push_back(sphere);
 	}
-
 }
 
 Camera* Camera::CreateInstance(float verticalFOV, float nearClip, float farClip)

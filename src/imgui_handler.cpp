@@ -97,48 +97,53 @@ void ImGuiHandler::BeginFrame(ImGuiID& dockSpaceID, Camera* camera)
     ImGui::ColorEdit3("Sky", glm::value_ptr(camera->m_SkyColor));
     ImGui::NewLine();
 
-    ImGui::Text("Spheres");
-    ImGui::Separator();
-    for (int i = 0; i < spheres.size(); i++)
+    if (ImGui::TreeNode("Spheres"))
     {
-        ImGui::PushID(i);
+        ImGui::Separator();
+        for (int i = 0; i < spheres.size(); i++)
+        {
+            ImGui::PushID(i);
+    
+            Sphere& sphere = spheres[i];
+            ImGui::DragFloat3("Position", glm::value_ptr(sphere.Origin), 0.1f);
+            ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
+            ImGui::DragInt("MaterailID", &sphere.MaterialIndex, 0.1f, 0, static_cast<int>(materials.size()) - 1);
 
-        Sphere& sphere = spheres[i];
-        ImGui::DragFloat3("Position", glm::value_ptr(sphere.Origin), 0.1f);
-        ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
-        ImGui::DragInt("MaterailID", &sphere.MaterialIndex, 0.1f, 0, static_cast<int>(materials.size()) - 1);
-
-        ImGui::NewLine();
-        ImGui::PopID();
+            ImGui::NewLine();
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
     }
-
     ImGui::NewLine();
-    ImGui::Text("Materials");
-    ImGui::Separator();
 
-    for (int i = 0; i < materials.size(); i++)
+    if (ImGui::TreeNode("Materials"))
     {
-        ImGui::PushID(i);
+        ImGui::Separator();
+        for (int i = 0; i < materials.size(); i++)
+        {
+            ImGui::PushID(i);
 
-        Material& material = materials[i];
+            Material& material = materials[i];
 
-        const char* materialEnum = ((int)material.Type >= 0 && (int)material.Type < (int)Material::Classification::TOTAL) ? material.TypeNames[(int)material.Type] : "Unknown";
+            const char* materialEnum = ((int)material.Type >= 0 && (int)material.Type < (int)Material::Classification::TOTAL) ? material.TypeNames[(int)material.Type] : "Unknown";
 
-        ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+            ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
                 
-        ImGui::SliderInt("Type", (int *)&material.Type, 0, (int)Material::Classification::TOTAL - 1, materialEnum);
+            ImGui::SliderInt("Type", (int *)&material.Type, 0, (int)Material::Classification::TOTAL - 1, materialEnum);
         
-        if (material.Type == Material::Classification::DIELECTRIC)
-            ImGui::SliderFloat("Reflective Index", &material.Refractivendex, 0, 3.0f);
+            if (material.Type == Material::Classification::DIELECTRIC)
+                ImGui::SliderFloat("Reflective Index", &material.Refractivendex, 0, 3.0f);
 
-        if (material.Type == Material::Classification::METAL)
-            ImGui::DragFloat("Roughness", &material.Roughness, 0.001f, 0.0f, 1.0f);
+            if (material.Type == Material::Classification::METAL)
+                ImGui::DragFloat("Roughness", &material.Roughness, 0.001f, 0.0f, 1.0f);
         
-        ImGui::ColorEdit3("Emission Color", glm::value_ptr(material.EmissionColor));
-        ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.5f, 0.0f, std::numeric_limits<float>::max());
+            ImGui::ColorEdit3("Emission Color", glm::value_ptr(material.EmissionColor));
+            ImGui::DragFloat("Emission Power", &material.EmissionPower, 0.5f, 0.0f, std::numeric_limits<float>::max());
 
-        ImGui::NewLine();
-        ImGui::PopID();
+            ImGui::NewLine();
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
     }
 
     ImGui::End();
