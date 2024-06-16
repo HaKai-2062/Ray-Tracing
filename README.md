@@ -4,10 +4,11 @@ Software Ray tracing based on [Ray Tracing by The Cherno](https://www.youtube.co
 Initially, [Ray Tracing in One Weekend series](https://raytracing.github.io/) was followed but it was not good enough for real time application . It is a good resource nonetheless and was very helpful for setting up material system without pre-requisite knowledge about the subject matter.
 
 ## Key features
- - Three types of materials are supported: Lambertian, Metal and Dielectric.
- - The name for their base/solid color is called as Albedo.
- - Lambertian has most roughness and are non metallic.
- - Metals can have roughnesses that dictate the amount of scatter they produce when a light ray hits the surface.
+- Multithreading is supported but it can peak cpu usage by saturating the available cpu cores.
+- Three types of materials are supported: Lambertian, Metal and Dielectric.
+- The name for their base/solid color is called as Albedo.
+- Lambertian has most roughness and are non metallic.
+- Metals can have roughnesses that dictate the amount of scatter they produce when a light ray hits the surface.
 - Dielectric material can reflect and refract light. They let light pass through them and have concepts like Total Internal Reflection. Typically, a change in medium occurs so a refractive index is needed. FresnelSchlick approximates whether reflection or refraction can occur.
 - Another subtype of materials is called Emissivity which means that objects can emit their own light instead of relying on sky color for contribution in lighting the scene.
 
